@@ -1,5 +1,8 @@
+import java.time.Instant
+
 plugins {
     id 'java'
+    id 'application'
 }
 
 group = 'com.kata'
@@ -9,11 +12,27 @@ repositories {
     mavenCentral()
 }
 
+application {
+    mainClass = 'com.kata.Main'
+}
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+}
+
+tasks.register('archiveReports', Zip) {
+    archiveFileName = new Date().format('yyyy-MM-dd-HH:mm:ss-') + "reports" + ".zip"
+    destinationDirectory = layout.buildDirectory
+
+    from layout.buildDirectory.dir("reports")
+}
+
+tasks.register('cleanReports', Delete) {
+    delete fileTree(buildDir).matching {
+        include "*-reports.zip"
+    }
 }
 
 test {
     useJUnitPlatform()
+    finalizedBy("archiveReports")
 }
